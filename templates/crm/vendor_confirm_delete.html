@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Vendor{% endblock title %}
+
+{% block content_header %}Delete Vendor{% endblock content_header %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'vendor-list' %}">Vendors</a></li>
+<li class="breadcrumb-item active">Delete</li>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-header bg-danger">
+            <h3 class="card-title text-white">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Confirm Delete
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <h4><i class="icon fas fa-exclamation-triangle"></i> Warning!</h4>
+                Are you sure you want to delete the vendor <strong>{{ object.name }}</strong>?
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-danger">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Vendor Name</span>
+                            <span class="info-box-number">{{ object.name }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Email</span>
+                            <span class="info-box-number">{{ object.contact_email }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert alert-danger">
+                <strong>This action cannot be undone!</strong>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash mr-1"></i>
+                        Yes, Delete Vendor
+                    </button>
+                    <a href="{% url 'vendor-list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

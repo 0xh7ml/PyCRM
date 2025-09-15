@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if object %}Edit Vendor{% else %}Add New Vendor{% endif %}
+{% endblock title %}
+
+{% block content_header %}
+    {% if object %}Edit Vendor{% else %}Add New Vendor{% endif %}
+{% endblock content_header %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'vendor-list' %}">Vendors</a></li>
+<li class="breadcrumb-item active">
+    {% if object %}Edit{% else %}Add{% endif %}
+</li>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-{% if object %}edit{% else %}plus{% endif %} mr-2"></i>
+                {% if object %}Edit Vendor: {{ object.name }}{% else %}Add New Vendor{% endif %}
+            </h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="id_name" class="form-label">
+                                <i class="fas fa-user mr-1"></i>
+                                Vendor Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                                   name="name" 
+                                   id="id_name" 
+                                   value="{{ form.name.value|default:'' }}" 
+                                   required 
+                                   placeholder="Enter vendor name">
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="id_contact_email" class="form-label">
+                                <i class="fas fa-envelope mr-1"></i>
+                                Email Address <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" 
+                                   class="form-control {% if form.contact_email.errors %}is-invalid{% endif %}" 
+                                   name="contact_email" 
+                                   id="id_contact_email" 
+                                   value="{{ form.contact_email.value|default:'' }}" 
+                                   required 
+                                   placeholder="Enter email address">
+                            {% if form.contact_email.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.contact_email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="id_phone_number" class="form-label">
+                                <i class="fas fa-phone mr-1"></i>
+                                Phone Number
+                            </label>
+                            <input type="text" 
+                                   class="form-control {% if form.phone_number.errors %}is-invalid{% endif %}" 
+                                   name="phone_number" 
+                                   id="id_phone_number" 
+                                   value="{{ form.phone_number.value|default:'' }}" 
+                                   placeholder="Enter phone number">
+                            {% if form.phone_number.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.phone_number.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group mb-3">
+                            <label for="id_address" class="form-label">
+                                <i class="fas fa-map-marker-alt mr-1"></i>
+                                Address
+                            </label>
+                            <textarea class="form-control {% if form.address.errors %}is-invalid{% endif %}" 
+                                      name="address" 
+                                      id="id_address" 
+                                      rows="3" 
+                                      placeholder="Enter vendor address">{{ form.address.value|default:'' }}</textarea>
+                            {% if form.address.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.address.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group mb-0">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save mr-1"></i>
+                                {% if object %}Update Vendor{% else %}Save Vendor{% endif %}
+                            </button>
+                            <a href="{% url 'vendor-list' %}" class="btn btn-secondary ms-2">
+                                <i class="fas fa-arrow-left mr-1"></i>
+                                Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
