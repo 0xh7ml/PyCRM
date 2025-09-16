@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponse
 from django.forms import formset_factory, modelformset_factory
 from django.db import transaction
@@ -34,17 +36,18 @@ def check_stock_availability(product_id, requested_quantity):
         error_msg = f"Product with ID {product_id} not found"
         return False, 0, error_msg
 
-class OrderListView(ListView):
+class OrderListView(LoginRequiredMixin, ListView):
     model = Order
     template_name = 'oms/order_list.html'
     context_object_name = 'orders'
     paginate_by = 10
 
-class OrderDetailView(DetailView):
+class OrderDetailView(LoginRequiredMixin, DetailView):
     model = Order
     template_name = 'oms/order_detail.html'
     context_object_name = 'order'
 
+@login_required
 def create_order_view(request):
     if request.method == 'POST':
         vendor_id = request.POST.get('vendor')
@@ -161,6 +164,7 @@ def create_order_view(request):
     }
     return render(request, 'oms/order_form.html', context)
 
+@login_required
 def update_order_view(request, pk):
     order = get_object_or_404(Order, pk=pk)
     
@@ -276,7 +280,7 @@ def update_order_view(request, pk):
     }
     return render(request, 'oms/order_form.html', context)
 
-class OrderDeleteView(DeleteView):
+class OrderDeleteView(LoginRequiredMixin, DeleteView):
     model = Order
     template_name = 'oms/order_confirm_delete.html'
     success_url = reverse_lazy('order-list')
@@ -293,6 +297,7 @@ class OrderDeleteView(DeleteView):
         messages.success(request, f'Order {order.pk} deleted successfully and stock restored.')
         return response
 
+@login_required
 def get_product_price(request):
     """AJAX view to get product price and stock info"""
     product_id = request.GET.get('product_id')
@@ -320,6 +325,7 @@ def get_product_price(request):
     
     return JsonResponse({'success': False, 'error': 'Invalid product ID'})
 
+@login_required
 def check_stock_ajax(request):
     """AJAX view to check stock availability"""
     product_id = request.GET.get('product_id')
@@ -340,6 +346,7 @@ def check_stock_ajax(request):
     
     return JsonResponse({'success': False, 'error': 'Missing product ID or quantity'})
 
+@login_required
 def generate_invoice(request, pk):
     """Generate invoice for an order"""
     order = get_object_or_404(Order, pk=pk)

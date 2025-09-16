@@ -2,12 +2,13 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Category, Attribute, Product
 
 # Create your views here.
 
 # Category Views
-class CategoryListView(ListView):
+class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
     template_name = 'product/category_list.html'
     context_object_name = 'categories'
@@ -17,7 +18,7 @@ class CategoryListView(ListView):
         return Category.objects.all().order_by('parent_category__name', 'name')
 
 
-class CategoryDetailView(DetailView):
+class CategoryDetailView(LoginRequiredMixin, DetailView):
     model = Category
     template_name = 'product/category_detail.html'
     context_object_name = 'category'
@@ -29,7 +30,7 @@ class CategoryDetailView(DetailView):
         return context
 
 
-class CategoryCreateView(CreateView):
+class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = Category
     template_name = 'product/category_form.html'
     fields = ['name', 'parent_category', 'description']
@@ -40,7 +41,7 @@ class CategoryCreateView(CreateView):
         return super().form_valid(form)
 
 
-class CategoryUpdateView(UpdateView):
+class CategoryUpdateView(LoginRequiredMixin, UpdateView):
     model = Category
     template_name = 'product/category_form.html'
     fields = ['name', 'parent_category', 'description']
@@ -51,7 +52,7 @@ class CategoryUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class CategoryDeleteView(DeleteView):
+class CategoryDeleteView(LoginRequiredMixin, DeleteView):
     model = Category
     template_name = 'product/category_confirm_delete.html'
     success_url = reverse_lazy('product:category_list')
@@ -63,20 +64,20 @@ class CategoryDeleteView(DeleteView):
 
 
 # Attribute Views
-class AttributeListView(ListView):
+class AttributeListView(LoginRequiredMixin, ListView):
     model = Attribute
     template_name = 'product/attribute_list.html'
     context_object_name = 'attributes'
     paginate_by = 20
 
 
-class AttributeDetailView(DetailView):
+class AttributeDetailView(LoginRequiredMixin, DetailView):
     model = Attribute
     template_name = 'product/attribute_detail.html'
     context_object_name = 'attribute'
 
 
-class AttributeCreateView(CreateView):
+class AttributeCreateView(LoginRequiredMixin, CreateView):
     model = Attribute
     template_name = 'product/attribute_form.html'
     fields = ['name', 'attribute_type', 'description', 'choices', 'is_required']
@@ -87,7 +88,7 @@ class AttributeCreateView(CreateView):
         return super().form_valid(form)
 
 
-class AttributeUpdateView(UpdateView):
+class AttributeUpdateView(LoginRequiredMixin, UpdateView):
     model = Attribute
     template_name = 'product/attribute_form.html'
     fields = ['name', 'attribute_type', 'description', 'choices', 'is_required']
@@ -98,7 +99,7 @@ class AttributeUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class AttributeDeleteView(DeleteView):
+class AttributeDeleteView(LoginRequiredMixin, DeleteView):
     model = Attribute
     template_name = 'product/attribute_confirm_delete.html'
     success_url = reverse_lazy('product:attribute_list')
@@ -110,7 +111,7 @@ class AttributeDeleteView(DeleteView):
 
 
 # Product Views
-class ProductListView(ListView):
+class ProductListView(LoginRequiredMixin, ListView):
     model = Product
     template_name = 'product/product_list.html'
     context_object_name = 'products'
@@ -120,13 +121,13 @@ class ProductListView(ListView):
         return Product.objects.select_related('category', 'sub_category').filter(is_active=True)
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'product/product_detail.html'
     context_object_name = 'product'
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     template_name = 'product/product_form.html'
     fields = ['item_name', 'category', 'sub_category', 'purchase_price', 'mrp', 'description', 'is_active']
@@ -137,7 +138,7 @@ class ProductCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
     template_name = 'product/product_form.html'
     fields = ['item_name', 'category', 'sub_category', 'purchase_price', 'mrp', 'description', 'is_active']
@@ -148,7 +149,7 @@ class ProductUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
     model = Product
     template_name = 'product/product_confirm_delete.html'
     success_url = reverse_lazy('product:product_list')

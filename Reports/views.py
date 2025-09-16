@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Sum, Count, Avg, F, Q
 from django.utils import timezone
@@ -14,7 +15,7 @@ from Product.models import Product
 from CRM.models import Vendor
 
 
-class ReportsDashboardView(TemplateView):
+class ReportsDashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'reports/dashboard.html'
     
     def get_context_data(self, **kwargs):
@@ -31,7 +32,7 @@ class ReportsDashboardView(TemplateView):
         return context
 
 
-class SalesReportView(TemplateView):
+class SalesReportView(LoginRequiredMixin, TemplateView):
     template_name = 'reports/sales_report.html'
     
     def get_context_data(self, **kwargs):
@@ -130,7 +131,7 @@ class SalesReportView(TemplateView):
         return context
 
 
-class StockReportView(TemplateView):
+class StockReportView(LoginRequiredMixin, TemplateView):
     template_name = 'reports/stock_report.html'
     
     def get_context_data(self, **kwargs):
@@ -212,6 +213,7 @@ class StockReportView(TemplateView):
         return context
 
 
+@login_required
 def export_sales_report(request):
     """Export sales report as CSV"""
     # Get same filters as the view
@@ -260,6 +262,7 @@ def export_sales_report(request):
     return response
 
 
+@login_required
 def export_stock_report(request):
     """Export stock report as CSV"""
     low_stock_threshold = int(request.GET.get('low_stock_threshold', 10))

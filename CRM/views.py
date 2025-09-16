@@ -2,10 +2,11 @@ from django.shortcuts import render
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Vendor
 
 
-class VendorListView(ListView):
+class VendorListView(LoginRequiredMixin, ListView):
     model = Vendor
     template_name = 'crm/vendor_list.html'
     context_object_name = 'vendors'
@@ -13,7 +14,7 @@ class VendorListView(ListView):
     ordering = ['name']
 
 
-class VendorCreateView(CreateView):
+class VendorCreateView(LoginRequiredMixin, CreateView):
     model = Vendor
     template_name = 'crm/vendor_form.html'
     fields = ['name', 'contact_email', 'phone_number', 'address']
@@ -24,7 +25,7 @@ class VendorCreateView(CreateView):
         return super().form_valid(form)
 
 
-class VendorUpdateView(UpdateView):
+class VendorUpdateView(LoginRequiredMixin, UpdateView):
     model = Vendor
     template_name = 'crm/vendor_form.html'
     fields = ['name', 'contact_email', 'phone_number', 'address']
@@ -35,13 +36,13 @@ class VendorUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class VendorDetailView(DetailView):
+class VendorDetailView(LoginRequiredMixin, DetailView):
     model = Vendor
     template_name = 'crm/vendor_detail.html'
     context_object_name = 'vendor'
 
 
-class VendorDeleteView(DeleteView):
+class VendorDeleteView(LoginRequiredMixin, DeleteView):
     model = Vendor
     template_name = 'crm/vendor_confirm_delete.html'
     success_url = reverse_lazy('vendor-list')

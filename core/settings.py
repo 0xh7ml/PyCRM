@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'Product',
     'Inventory',
     'Reports',
+    'Auth',
+    'Accounts',
 ]
 
 MIDDLEWARE = [
@@ -131,3 +133,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Authentication settings
+LOGIN_URL = '/auth/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/auth/'

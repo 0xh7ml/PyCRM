@@ -16,6 +16,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+@login_required
 def stock_in_list(request):
     """List all stock in records with search and pagination"""
     query = request.GET.get('q', '')
@@ -46,6 +47,7 @@ def stock_in_list(request):
     return render(request, 'inventory/stock_in_list.html', context)
 
 
+@login_required
 def stock_in_detail(request, pk):
     """View stock in details"""
     stock_in = get_object_or_404(StockIn, pk=pk)
@@ -58,6 +60,7 @@ def stock_in_detail(request, pk):
     return render(request, 'inventory/stock_in_detail.html', context)
 
 
+@login_required
 def stock_in_create(request):
     """Create new stock in record"""
     if request.method == 'POST':
@@ -111,6 +114,7 @@ def stock_in_create(request):
     return render(request, 'inventory/stock_in_form.html', context)
 
 
+@login_required
 def stock_in_edit(request, pk):
     """Edit existing stock in record (only if not completed)"""
     stock_in = get_object_or_404(StockIn, pk=pk)
@@ -183,6 +187,7 @@ def stock_in_edit(request, pk):
     return render(request, 'inventory/stock_in_form.html', context)
 
 
+@login_required
 def stock_in_complete(request, pk):
     """Complete a stock in and update product stocks"""
     stock_in = get_object_or_404(StockIn, pk=pk)
@@ -200,6 +205,7 @@ def stock_in_complete(request, pk):
     return redirect('stock-in-detail', pk=pk)
 
 
+@login_required
 def stock_in_delete(request, pk):
     """Delete stock in record (only if not completed)"""
     stock_in = get_object_or_404(StockIn, pk=pk)
@@ -222,6 +228,7 @@ def stock_in_delete(request, pk):
 # AJAX Views for barcode and product search
 
 @require_http_methods(["GET"])
+@login_required
 def search_product_by_barcode(request):
     """AJAX endpoint to search product by barcode"""
     barcode = request.GET.get('barcode', '').strip()
@@ -313,6 +320,7 @@ def search_products(request):
         }, status=500)
 
 
+@login_required
 def stock_list(request):
     """List all product stocks with search"""
     query = request.GET.get('q', '')

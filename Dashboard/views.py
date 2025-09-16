@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def dashboard_view(request):
     """
     Dashboard view with info cards for quick access to different apps
