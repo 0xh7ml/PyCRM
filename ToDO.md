@@ -12,10 +12,10 @@
         Address,
         Name
     )
-- [ ] Orders
-    - [ ] Order CRUD
-    - [ ] Order Wise Invoice (PDF)
-    - [ ] Discounts (Product wise, Line Item Wise)
+- [x] Orders
+    - [x] Order CRUD
+    - [x] Order Wise Invoice (PDF)
+    - [x] Discounts (Product wise, Line Item Wise)
 
 - [ ] HRM
     - [ ] Employee Profile

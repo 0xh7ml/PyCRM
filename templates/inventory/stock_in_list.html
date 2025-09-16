@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Stock In Records{% endblock %}
+
+{% block content_header %}Stock In Records{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Stock In</li>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="card-title">Stock In Records</h3>
+                </div>
+                <div class="col-md-6 text-right">
+                    <a href="{% url 'stock-in-create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> New Stock In
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <!-- Search Form -->
+            <form method="get" class="mb-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by Stock In ID, User, or Notes">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="status" class="form-control">
+                            <option value="">All Status</option>
+                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'stock-in-list' %}" class="btn btn-secondary">Reset</a>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Stock In Table -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Stock In ID</th>
+                            <th>Created By</th>
+                            <th>Created Date</th>
+                            <th>Total Items</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock_in in page_obj %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'stock-in-detail' stock_in.pk %}">
+                                    {{ stock_in.stock_in_id }}
+                                </a>
+                            </td>
+                            <td>{{ stock_in.created_by.username }}</td>
+                            <td>{{ stock_in.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>{{ stock_in.total_items }}</td>
+                            <td>
+                                {% if stock_in.is_completed %}
+                                    <span class="badge badge-success">Completed</span>
+                                {% else %}
+                                    <span class="badge badge-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ stock_in.notes|truncatechars:50 }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'stock-in-detail' stock_in.pk %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if not stock_in.is_completed %}
+                                        <a href="{% url 'stock-in-edit' stock_in.pk %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'stock-in-delete' stock_in.pk %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No stock in records found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Stock In pagination">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">&laquo; First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Last &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

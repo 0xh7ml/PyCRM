@@ -29,6 +29,36 @@ class Order(models.Model):
 
     def get_absolute_url(self):
         return reverse('order-detail', kwargs={'pk': self.pk})
+    
+    def restore_stock(self):
+        """Restore stock quantities for all items in this order"""
+        from Inventory.models import Stock
+        
+        for order_item in self.items.all():
+            try:
+                stock = Stock.objects.get(product=order_item.product)
+                stock.add_stock(order_item.quantity)
+                print(f"Stock restored for {order_item.product.item_name}: +{order_item.quantity} (New quantity: {stock.quantity})")
+            except Stock.DoesNotExist:
+                print(f"Warning: No stock record found for product {order_item.product.item_name}")
+                # Create stock record with the quantity being restored
+                Stock.objects.create(product=order_item.product, quantity=order_item.quantity)
+    
+    def reduce_stock(self):
+        """Reduce stock quantities for all items in this order"""
+        from Inventory.models import Stock
+        
+        for order_item in self.items.all():
+            try:
+                stock = Stock.objects.get(product=order_item.product)
+                if stock.reduce_stock(order_item.quantity):
+                    print(f"Stock reduced for {order_item.product.item_name}: -{order_item.quantity} (New quantity: {stock.quantity})")
+                else:
+                    print(f"Warning: Could not reduce stock for {order_item.product.item_name} - insufficient stock")
+            except Stock.DoesNotExist:
+                print(f"Warning: No stock record found for product {order_item.product.item_name}")
+                # Create stock record with zero quantity
+                Stock.objects.create(product=order_item.product, quantity=0)
 
 class OrderItem(models.Model):
     DISCOUNT_TYPE_CHOICES = [

@@ -234,7 +234,15 @@ function updatePrice(select) {
     const selectedOption = select.options[select.selectedIndex];
     const price = selectedOption.getAttribute('data-price') || 0;
     const priceInput = select.closest('.item-row').querySelector('.price-input');
+    const quantityInput = select.closest('.item-row').querySelector('.quantity-input');
+    
     priceInput.value = price;
+    
+    // Check stock availability when product is selected
+    if (select.value) {
+        checkStockAvailability(select.value, quantityInput.value, select.closest('.item-row'));
+    }
+    
     calculateItemTotal(select);
 }
 
@@ -260,7 +268,57 @@ function calculateItemTotal(element) {
     itemRow.querySelector('.item-discount').textContent = discountAmount.toFixed(2);
     itemRow.querySelector('.item-total').textContent = total.toFixed(2);
     
+    // Check stock when quantity changes
+    const productSelect = itemRow.querySelector('.product-select');
+    if (productSelect.value && element.classList.contains('quantity-input')) {
+        checkStockAvailability(productSelect.value, quantity, itemRow);
+    }
+    
     calculateGrandTotal();
+}
+
+function checkStockAvailability(productId, quantity, itemRow) {
+    // Remove any existing stock message
+    const existingMsg = itemRow.querySelector('.stock-message');
+    if (existingMsg) {
+        existingMsg.remove();
+    }
+    
+    // Make AJAX request to check stock
+    const url = "{% url 'check-stock-ajax' %}?product_id=" + productId + "&quantity=" + quantity;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Create stock message element
+                const stockMsg = document.createElement('div');
+                stockMsg.className = 'stock-message';
+                stockMsg.style.fontSize = '11px';
+                stockMsg.style.marginTop = '5px';
+                stockMsg.style.padding = '3px 8px';
+                stockMsg.style.borderRadius = '3px';
+                
+                if (data.stock_available) {
+                    stockMsg.className += ' text-success';
+                    stockMsg.style.backgroundColor = '#d4edda';
+                    stockMsg.style.color = '#155724';
+                    stockMsg.innerHTML = '<i class="fas fa-check"></i> ' + data.message;
+                } else {
+                    stockMsg.className += ' text-danger';
+                    stockMsg.style.backgroundColor = '#f8d7da';
+                    stockMsg.style.color = '#721c24';
+                    stockMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + data.message;
+                }
+                
+                // Add stock message after the product select
+                const productGroup = itemRow.querySelector('.product-select').closest('.form-group');
+                productGroup.appendChild(stockMsg);
+            }
+        })
+        .catch(error => {
+            console.error('Stock check failed:', error);
+        });
 }
 
 function calculateGrandTotal() {
@@ -314,6 +372,17 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             return false;
         }
+        
+        // Check for any stock warning messages
+        const stockErrors = document.querySelectorAll('.stock-message.text-danger');
+        if (stockErrors.length > 0) {
+            const confirmMsg = 'Some items have stock issues. Do you want to proceed anyway?';
+            if (!confirm(confirmMsg)) {
+                e.preventDefault();
+                return false;
+            }
+        }
+        
         document.getElementById('items_data').value = JSON.stringify(itemsData);
     });
 
@@ -321,6 +390,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const existingItems = document.querySelectorAll('.item-row');
     existingItems.forEach(function(item) {
         calculateItemTotal(item.querySelector('.quantity-input'));
+        
+        // Check stock for existing items
+        const productSelect = item.querySelector('.product-select');
+        const quantityInput = item.querySelector('.quantity-input');
+        if (productSelect.value) {
+            checkStockAvailability(productSelect.value, quantityInput.value, item);
+        }
     });
 
     // Add initial item if creating new order

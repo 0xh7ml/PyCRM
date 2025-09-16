@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reports Dashboard{% endblock %}
+{% block content_header %}Reports Dashboard{% endblock %}
+
+{% block breadcrumb %}
+<ol class="breadcrumb float-sm-right">
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+    <li class="breadcrumb-item active">Reports</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Quick Stats Cards -->
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>{{ total_orders }}</h3>
+                <p>Total Orders</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>{{ total_order_value|floatformat:2 }}</h3>
+                <p>Total Sales Value</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>{{ total_products }}</h3>
+                <p>Active Products</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-cube"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>{{ low_stock_items }}</h3>
+                <p>Low Stock Items</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Reports Menu -->
+    <div class="col-md-6">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-line"></i>
+                    Sales Reports
+                </h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Comprehensive sales analytics and performance metrics</p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success"></i> Order summary and trends</li>
+                    <li><i class="fas fa-check text-success"></i> Revenue analysis by vendor</li>
+                    <li><i class="fas fa-check text-success"></i> Top selling products</li>
+                    <li><i class="fas fa-check text-success"></i> Monthly sales trends</li>
+                    <li><i class="fas fa-check text-success"></i> Export to CSV</li>
+                </ul>
+                <a href="{% url 'sales-report' %}" class="btn btn-primary">
+                    <i class="fas fa-chart-bar"></i> View Sales Report
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card card-info">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-boxes"></i>
+                    Stock Reports
+                </h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Inventory levels and stock movement analysis</p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success"></i> Current stock levels</li>
+                    <li><i class="fas fa-check text-success"></i> Low stock alerts</li>
+                    <li><i class="fas fa-check text-success"></i> Stock movement history</li>
+                    <li><i class="fas fa-check text-success"></i> Product turnover analysis</li>
+                    <li><i class="fas fa-check text-success"></i> Export to CSV</li>
+                </ul>
+                <a href="{% url 'stock-report' %}" class="btn btn-info">
+                    <i class="fas fa-warehouse"></i> View Stock Report
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-info-circle"></i>
+                    Reports Overview
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Sales Reports Include:</h5>
+                        <ul>
+                            <li>Total orders and revenue metrics</li>
+                            <li>Average order value analysis</li>
+                            <li>Vendor performance comparison</li>
+                            <li>Product sales ranking</li>
+                            <li>Time-based sales trends</li>
+                            <li>Customizable date range filters</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Stock Reports Include:</h5>
+                        <ul>
+                            <li>Real-time inventory levels</li>
+                            <li>Stock value calculations</li>
+                            <li>Low stock and out-of-stock alerts</li>
+                            <li>Recent stock movements</li>
+                            <li>Product turnover rates</li>
+                            <li>Inventory health indicators</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

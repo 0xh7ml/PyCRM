@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - PyCRM{% endblock %}
+
+{% block content_header %}Dashboard{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Dashboard</li>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+    <div class="row">
+        {% for card in info_cards %}
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+            <div class="info-box">
+                <span class="info-box-icon bg-{{ card.color }} elevation-1">
+                    <i class="{{ card.icon }}"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text font-weight-bold">{{ card.title }}</span>
+                    <span class="info-box-number text-muted small">{{ card.description }}</span>
+                    
+                    <div class="mt-2">
+                        {% for link in card.links %}
+                        <a href="{% if link.url != '#' %}{% url link.url %}{% else %}#{% endif %}" 
+                           class="btn btn-sm btn-outline-{{ card.color }} mr-1 mb-1">
+                            {{ link.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Quick Access Section -->
+<div class="col-12 mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-rocket mr-1"></i>
+                Quick Actions
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box bg-gradient-info">
+                        <span class="info-box-icon">
+                            <i class="fas fa-plus"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Quick Add</span>
+                            <div class="mt-1">
+                                <a href="{% url 'vendor-create' %}" class="btn btn-sm btn-light">New Vendor</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box bg-gradient-success">
+                        <span class="info-box-icon">
+                            <i class="fas fa-box-open"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Inventory</span>
+                            <div class="mt-1">
+                                <a href="{% url 'stock-in-create' %}" class="btn btn-sm btn-light">Stock In</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box bg-gradient-warning">
+                        <span class="info-box-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Orders</span>
+                            <div class="mt-1">
+                                <a href="{% url 'order-create' %}" class="btn btn-sm btn-light">New Order</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box bg-gradient-primary">
+                        <span class="info-box-icon">
+                            <i class="fas fa-list"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">View All</span>
+                            <div class="mt-1">
+                                <a href="{% url 'stock-list' %}" class="btn btn-sm btn-light">Stock Levels</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activities Section -->
+<div class="col-12 mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-clock mr-1"></i>
+                Welcome to PyCRM
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>System Features:</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success mr-2"></i>Customer Relationship Management</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Product & Category Management</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Order Processing System</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Inventory Management with Barcode Support</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Stock In/Out Tracking</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>Quick Navigation:</h5>
+                    <p class="text-muted">Use the sidebar navigation or the info cards above to quickly access different modules of the system.</p>
+                    
+                    <div class="callout callout-info">
+                        <h6><i class="fas fa-info-circle"></i> Tip:</h6>
+                        <p class="mb-0">You can use barcode scanners in the Inventory module for quick stock management.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block customJs %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effect to info boxes
+    $('.info-box').hover(
+        function() {
+            $(this).addClass('elevation-3');
+        },
+        function() {
+            $(this).removeClass('elevation-3');
+        }
+    );
+});
+</script>
+{% endblock %}
