@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if object %}Edit Product{% else %}Add Product{% endif %} - CRM Solution
+{% endblock title %}
+
+{% block content_header %}
+    {% if object %}Edit Product{% else %}Add Product{% endif %}
+{% endblock content_header %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'product:product_list' %}">Products</a></li>
+    <li class="breadcrumb-item active">
+        {% if object %}Edit{% else %}Add{% endif %}
+    </li>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                {% if object %}Edit Product: {{ object.item_name }}{% else %}Add New Product{% endif %}
+            </h3>
+            <div class="card-tools">
+                <a href="{% url 'product:product_list' %}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+        
+        <form method="post">
+            <div class="card-body">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <h4><i class="icon fa fa-ban"></i> Error!</h4>
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <p>{{ field|capfirst }}: {{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Basic Information Section -->
+                <div class="row">
+                    <div class="col-12">
+                        <h5 class="text-primary">
+                            <i class="fas fa-info-circle"></i> Basic Information
+                        </h5>
+                        <hr>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.item_name.id_for_label }}" class="form-label">
+                                Item Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control {% if form.item_name.errors %}is-invalid{% endif %}"
+                                   id="{{ form.item_name.id_for_label }}"
+                                   name="{{ form.item_name.name }}"
+                                   value="{{ form.item_name.value|default:'' }}"
+                                   placeholder="Enter product name"
+                                   required>
+                            {% if form.item_name.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.item_name.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        {% if object and object.barcode %}
+                        <div class="form-group">
+                            <label class="form-label">Barcode</label>
+                            <input type="text" class="form-control" value="{{ object.barcode }}" readonly>
+                            <small class="form-text text-muted">Barcode is auto-generated and cannot be changed</small>
+                        </div>
+                        {% else %}
+                        <div class="form-group">
+                            <label class="form-label">Barcode</label>
+                            <input type="text" class="form-control" placeholder="Auto-generated on save" readonly>
+                            <small class="form-text text-muted">Barcode will be auto-generated when you save the product</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.category.id_for_label }}" class="form-label">
+                                Item Category <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-control {% if form.category.errors %}is-invalid{% endif %}"
+                                    id="{{ form.category.id_for_label }}"
+                                    name="{{ form.category.name }}"
+                                    onchange="updateSubCategories(this.value)"
+                                    required>
+                                <option value="">-- Select Category --</option>
+                                {% for choice in form.category.field.queryset %}
+                                    <option value="{{ choice.pk }}"
+                                            {% if form.category.value == choice.pk|stringformat:'s' %}selected{% endif %}>
+                                        {{ choice.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.category.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.category.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.sub_category.id_for_label }}" class="form-label">
+                                Item Sub Category
+                            </label>
+                            <select class="form-control {% if form.sub_category.errors %}is-invalid{% endif %}"
+                                    id="{{ form.sub_category.id_for_label }}"
+                                    name="{{ form.sub_category.name }}">
+                                <option value="">-- Select Sub Category (Optional) --</option>
+                                {% for choice in form.sub_category.field.queryset %}
+                                    <option value="{{ choice.pk }}"
+                                            data-parent="{{ choice.parent_category.pk }}"
+                                            {% if form.sub_category.value == choice.pk|stringformat:'s' %}selected{% endif %}>
+                                        {{ choice.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.sub_category.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.sub_category.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Information Section -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5 class="text-success">
+                            <i class="fas fa-info-circle"></i> Price Information
+                        </h5>
+                        <hr>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.purchase_price.id_for_label }}" class="form-label">
+                                Purchase Price <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="number" 
+                                       step="0.01"
+                                       min="0"
+                                       class="form-control {% if form.purchase_price.errors %}is-invalid{% endif %}"
+                                       id="{{ form.purchase_price.id_for_label }}"
+                                       name="{{ form.purchase_price.name }}"
+                                       value="{{ form.purchase_price.value|default:'' }}"
+                                       placeholder="0.00"
+                                       onchange="calculateProfit()"
+                                       required>
+                                {% if form.purchase_price.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.purchase_price.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.mrp.id_for_label }}" class="form-label">
+                                MRP (Maximum Retail Price) <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="number" 
+                                       step="0.01"
+                                       min="0"
+                                       class="form-control {% if form.mrp.errors %}is-invalid{% endif %}"
+                                       id="{{ form.mrp.id_for_label }}"
+                                       name="{{ form.mrp.name }}"
+                                       value="{{ form.mrp.value|default:'' }}"
+                                       placeholder="0.00"
+                                       onchange="calculateProfit()"
+                                       required>
+                                {% if form.mrp.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.mrp.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profit Calculation Display -->
+                <div class="row" id="profit-info" style="display: none;">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <h6>Profit Calculation:</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>Profit Margin:</strong> <span id="profit-margin">0.00</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Profit Percentage:</strong> <span id="profit-percentage">0.00%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Information Section -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5 class="text-info">
+                            <i class="fas fa-clipboard"></i> Additional Information
+                        </h5>
+                        <hr>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                Description
+                            </label>
+                            <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}"
+                                      id="{{ form.description.id_for_label }}"
+                                      name="{{ form.description.name }}"
+                                      rows="4"
+                                      placeholder="Enter product description...">{{ form.description.value|default:'' }}</textarea>
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.description.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <div class="form-check">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       id="{{ form.is_active.id_for_label }}"
+                                       name="{{ form.is_active.name }}"
+                                       {% if form.is_active.value %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Product is active
+                                </label>
+                                {% if form.is_active.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.is_active.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    {% if object %}Update Product{% else %}Create Product{% endif %}
+                </button>
+                <a href="{% url 'product:product_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function updateSubCategories(categoryId) {
+    const subCategorySelect = document.getElementById('{{ form.sub_category.id_for_label }}');
+    const options = subCategorySelect.querySelectorAll('option');
+    
+    // Hide all sub-category options
+    options.forEach(option => {
+        if (option.value === '') {
+            option.style.display = 'block'; // Keep the default option
+        } else {
+            const parentId = option.getAttribute('data-parent');
+            option.style.display = parentId === categoryId ? 'block' : 'none';
+        }
+    });
+    
+    // Reset sub-category selection
+    subCategorySelect.value = '';
+}
+
+function calculateProfit() {
+    const purchasePrice = parseFloat(document.getElementById('{{ form.purchase_price.id_for_label }}').value) || 0;
+    const mrp = parseFloat(document.getElementById('{{ form.mrp.id_for_label }}').value) || 0;
+    
+    if (purchasePrice > 0 && mrp > 0) {
+        const profitMargin = mrp - purchasePrice;
+        const profitPercentage = (profitMargin / purchasePrice) * 100;
+        
+        document.getElementById('profit-margin').textContent = profitMargin.toFixed(2);
+        document.getElementById('profit-percentage').textContent = profitPercentage.toFixed(2) + '%';
+        document.getElementById('profit-info').style.display = 'block';
+        
+        // Color coding for profit
+        const marginElement = document.getElementById('profit-margin');
+        const percentageElement = document.getElementById('profit-percentage');
+        
+        if (profitMargin >= 0) {
+            marginElement.className = 'text-light';
+            percentageElement.className = 'text-light';
+        } else {
+            marginElement.className = 'text-danger';
+            percentageElement.className = 'text-danger';
+        }
+    } else {
+        document.getElementById('profit-info').style.display = 'none';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const categorySelect = document.getElementById('{{ form.category.id_for_label }}');
+    if (categorySelect.value) {
+        updateSubCategories(categorySelect.value);
+    }
+    calculateProfit();
+});
+</script>
+{% endblock content %}

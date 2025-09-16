@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Categories - CRM Solution{% endblock title %}
+
+{% block content_header %}Categories{% endblock content_header %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">Categories</li>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Category Management</h3>
+            <div class="card-tools">
+                <a href="{% url 'product:category_create' %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Add Category
+                </a>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Parent Category</th>
+                            <th>Type</th>
+                            <th>Created Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'product:category_detail' category.pk %}">
+                                    {{ category.name }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if category.parent_category %}
+                                    {{ category.parent_category.name }}
+                                {% else %}
+                                    <span class="badge bg-primary">Parent</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if category.is_parent_category %}
+                                    <span class="badge bg-success">Main Category</span>
+                                {% else %}
+                                    <span class="badge bg-info">Sub Category</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ category.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'product:category_detail' category.pk %}" 
+                                       class="btn btn-info btn-sm" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'product:category_update' category.pk %}" 
+                                       class="btn btn-warning btn-sm" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'product:category_delete' category.pk %}" 
+                                       class="btn btn-danger btn-sm" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">
+                                <div class="alert alert-info">
+                                    No categories found. <a href="{% url 'product:category_create' %}">Create your first category</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if is_paginated %}
+        <div class="card-footer">
+            <nav aria-label="Category pagination">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo; First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

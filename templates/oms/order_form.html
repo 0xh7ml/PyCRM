@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if order %}Update Order{% else %}Create Order{% endif %}{% endblock %}
+{% block content_header %}{% if order %}Update Order{% else %}Create Order{% endif %}{% endblock %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">{% if order %}Update Order - {{ order.pk }}{% else %}Create New Order{% endif %}</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" id="orderForm">
+                {% csrf_token %}
+                <input type="hidden" name="items_data" id="items_data">
+                
+                <div class="row">
+                    <!-- Vendor Selection -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="vendor">Vendor *</label>
+                            <select name="vendor" id="vendor" class="form-control" required>
+                                <option value="">Select Vendor</option>
+                                {% for vendor in vendors %}
+                                <option value="{{ vendor.id }}" {% if order and order.vendor.id == vendor.id %}selected{% endif %}>
+                                    {{ vendor.name }} - {{ vendor.contact_email }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Notes -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea name="notes" id="notes" class="form-control" rows="3" placeholder="Order notes or special instructions">{% if order %}{{ order.notes }}{% endif %}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Items Section -->
+                <div class="form-group">
+                    <h4 class="text-primary">Order Items</h4>
+                    <div id="items-container">
+                        {% if order_items %}
+                            {% for item in order_items %}
+                            <div class="item-row" style="border-bottom: 1px solid #eee; padding: 15px 0; margin-bottom: 15px;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Product *</label>
+                                            <select class="form-control product-select" onchange="updatePrice(this)" required>
+                                                <option value="">Select Product</option>
+                                                {% for product in products %}
+                                                <option value="{{ product.id }}" data-price="{{ product.mrp }}" {% if item.product.id == product.id %}selected{% endif %}>
+                                                    {{ product.item_name }} ({{ product.mrp }})
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label>Quantity *</label>
+                                            <input type="number" class="form-control quantity-input" value="{{ item.quantity }}" min="1" onchange="calculateItemTotal(this)" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label>Unit Price *</label>
+                                            <input type="number" class="form-control price-input" value="{{ item.unit_price }}" step="0.01" onchange="calculateItemTotal(this)" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label>Discount Type</label>
+                                            <select class="form-control discount-type" onchange="calculateItemTotal(this)">
+                                                <option value="flat" {% if item.discount_type == 'flat' %}selected{% endif %}>Flat Amount</option>
+                                                <option value="percentage" {% if item.discount_type == 'percentage' %}selected{% endif %}>Percentage</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label>Discount Value</label>
+                                            <input type="number" class="form-control discount-value" value="{{ item.discount_value }}" step="0.01" min="0" onchange="calculateItemTotal(this)">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            <label>&nbsp;</label><br>
+                                            <button type="button" class="btn btn-danger btn-sm remove-item-btn" onclick="removeItem(this)" title="Remove Item">×</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="item-summary" style="background: #e9ecef; padding: 8px 12px; border-radius: 4px; font-size: 12px; margin-top: 8px;">
+                                    <small>Subtotal: <span class="item-subtotal">{{ item.get_subtotal }}</span> | 
+                                           Discount: <span class="item-discount">{{ item.get_discount_amount }}</span> | 
+                                           Total: <span class="item-total">{{ item.get_total_price }}</span></small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <button type="button" class="btn btn-success add-item-btn" onclick="addItem()">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="total-section" style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-top: 20px; border: 1px solid #dee2e6;">
+                    <h4 class="text-success">Order Summary</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Total Items: <span id="total-items" class="text-info">0</span></h5>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Grand Total: <span class="text-success"><span id="grand-total">0.00</span></span></h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% if order %}Update Order{% else %}Create Order{% endif %}
+                    </button>
+                    <a href="{% url 'order-list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Store products data for JavaScript -->
+<script id="products-data" type="application/json">
+[
+    {% for product in products %}
+    {
+        "id": {{ product.id }},
+        "name": "{{ product.item_name|escapejs }}",
+        "price": {{ product.mrp }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+</script>
+{% endblock %}
+
+{% block customJs %}
+<script>
+let itemCounter = {% if order_items %}{{ order_items|length }}{% else %}0{% endif %};
+let productsData = JSON.parse(document.getElementById('products-data').textContent);
+
+function addItem() {
+    const container = document.getElementById('items-container');
+    let productOptions = '<option value="">Select Product</option>';
+    
+    productsData.forEach(function(product) {
+        productOptions += `<option value="${product.id}" data-price="${product.price}">${product.name} (${product.price})</option>`;
+    });
+    
+    const itemHtml = `
+        <div class="item-row" style="border-bottom: 1px solid #eee; padding: 15px 0; margin-bottom: 15px;">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Product *</label>
+                        <select class="form-control product-select" onchange="updatePrice(this)" required>
+                            ${productOptions}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>Quantity *</label>
+                        <input type="number" class="form-control quantity-input" value="1" min="1" onchange="calculateItemTotal(this)" required>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>Unit Price *</label>
+                        <input type="number" class="form-control price-input" value="0" step="0.01" onchange="calculateItemTotal(this)" required>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>Discount Type</label>
+                        <select class="form-control discount-type" onchange="calculateItemTotal(this)">
+                            <option value="flat">Flat Amount</option>
+                            <option value="percentage">Percentage</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>Discount Value</label>
+                        <input type="number" class="form-control discount-value" value="0" step="0.01" min="0" onchange="calculateItemTotal(this)">
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <div class="form-group">
+                        <label>&nbsp;</label><br>
+                        <button type="button" class="btn btn-danger btn-sm remove-item-btn" onclick="removeItem(this)" title="Remove Item">×</button>
+                    </div>
+                </div>
+            </div>
+            <div class="item-summary" style="background: #e9ecef; padding: 8px 12px; border-radius: 4px; font-size: 12px; margin-top: 8px;">
+                <small>Subtotal: <span class="item-subtotal">0.00</span> | 
+                       Discount: <span class="item-discount">0.00</span> | 
+                       Total: <span class="item-total">0.00</span></small>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', itemHtml);
+    itemCounter++;
+}
+
+function removeItem(button) {
+    const itemRows = document.querySelectorAll('.item-row');
+    if (itemRows.length > 1) {
+        button.closest('.item-row').remove();
+        calculateGrandTotal();
+    } else {
+        alert('At least one item is required in the order.');
+    }
+}
+
+function updatePrice(select) {
+    const selectedOption = select.options[select.selectedIndex];
+    const price = selectedOption.getAttribute('data-price') || 0;
+    const priceInput = select.closest('.item-row').querySelector('.price-input');
+    priceInput.value = price;
+    calculateItemTotal(select);
+}
+
+function calculateItemTotal(element) {
+    const itemRow = element.closest('.item-row');
+    const quantity = parseFloat(itemRow.querySelector('.quantity-input').value) || 0;
+    const price = parseFloat(itemRow.querySelector('.price-input').value) || 0;
+    const discountType = itemRow.querySelector('.discount-type').value;
+    const discountValue = parseFloat(itemRow.querySelector('.discount-value').value) || 0;
+    
+    const subtotal = quantity * price;
+    let discountAmount = 0;
+    
+    if (discountType === 'percentage') {
+        discountAmount = (subtotal * discountValue) / 100;
+    } else {
+        discountAmount = discountValue;
+    }
+    
+    const total = subtotal - discountAmount;
+    
+    itemRow.querySelector('.item-subtotal').textContent = subtotal.toFixed(2);
+    itemRow.querySelector('.item-discount').textContent = discountAmount.toFixed(2);
+    itemRow.querySelector('.item-total').textContent = total.toFixed(2);
+    
+    calculateGrandTotal();
+}
+
+function calculateGrandTotal() {
+    const itemTotals = document.querySelectorAll('.item-total');
+    let grandTotal = 0;
+    let itemCount = 0;
+    
+    itemTotals.forEach(function(item) {
+        const value = parseFloat(item.textContent) || 0;
+        grandTotal += value;
+        if (value > 0) itemCount++;
+    });
+    
+    document.getElementById('grand-total').textContent = grandTotal.toFixed(2);
+    document.getElementById('total-items').textContent = itemCount;
+}
+
+function collectItemsData() {
+    const items = [];
+    const itemRows = document.querySelectorAll('.item-row');
+    
+    itemRows.forEach(function(row) {
+        const productSelect = row.querySelector('.product-select');
+        const productId = productSelect.value;
+        
+        if (productId) {
+            const quantity = row.querySelector('.quantity-input').value;
+            const unitPrice = row.querySelector('.price-input').value;
+            const discountType = row.querySelector('.discount-type').value;
+            const discountValue = row.querySelector('.discount-value').value;
+            
+            items.push({
+                product_id: productId,
+                quantity: quantity,
+                unit_price: unitPrice,
+                discount_type: discountType,
+                discount_value: discountValue
+            });
+        }
+    });
+    
+    return items;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize form submission handler
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+        const itemsData = collectItemsData();
+        if (itemsData.length === 0) {
+            alert('Please add at least one item to the order.');
+            e.preventDefault();
+            return false;
+        }
+        document.getElementById('items_data').value = JSON.stringify(itemsData);
+    });
+
+    // Initialize calculations for existing items
+    const existingItems = document.querySelectorAll('.item-row');
+    existingItems.forEach(function(item) {
+        calculateItemTotal(item.querySelector('.quantity-input'));
+    });
+
+    // Add initial item if creating new order
+    {% if not order %}
+    addItem();
+    {% endif %}
+});
+</script>
+{% endblock %}

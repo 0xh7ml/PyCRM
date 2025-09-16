@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if object %}Edit Attribute{% else %}Add Attribute{% endif %} - CRM Solution
+{% endblock title %}
+
+{% block content_header %}
+    {% if object %}Edit Attribute{% else %}Add Attribute{% endif %}
+{% endblock content_header %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'product:attribute_list' %}">Attributes</a></li>
+    <li class="breadcrumb-item active">
+        {% if object %}Edit{% else %}Add{% endif %}
+    </li>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                {% if object %}Edit Attribute: {{ object.name }}{% else %}Add New Attribute{% endif %}
+            </h3>
+            <div class="card-tools">
+                <a href="{% url 'product:attribute_list' %}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+        
+        <form method="post">
+            <div class="card-body">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <h4><i class="icon fa fa-ban"></i> Error!</h4>
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <p>{{ field|capfirst }}: {{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                Attribute Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control {% if form.name.errors %}is-invalid{% endif %}"
+                                   id="{{ form.name.id_for_label }}"
+                                   name="{{ form.name.name }}"
+                                   value="{{ form.name.value|default:'' }}"
+                                   placeholder="e.g., Size, Color, Type"
+                                   required>
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.name.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.attribute_type.id_for_label }}" class="form-label">
+                                Attribute Type <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-control {% if form.attribute_type.errors %}is-invalid{% endif %}"
+                                    id="{{ form.attribute_type.id_for_label }}"
+                                    name="{{ form.attribute_type.name }}"
+                                    onchange="toggleChoicesField(this.value)">
+                                {% for value, label in form.attribute_type.field.choices %}
+                                    <option value="{{ value }}"
+                                            {% if form.attribute_type.value == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.attribute_type.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.attribute_type.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">
+                        Description
+                    </label>
+                    <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}"
+                              id="{{ form.description.id_for_label }}"
+                              name="{{ form.description.name }}"
+                              rows="3"
+                              placeholder="Enter attribute description...">{{ form.description.value|default:'' }}</textarea>
+                    {% if form.description.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.description.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group" id="choices-group" 
+                     {% if form.attribute_type.value != 'choice' %}style="display:none;"{% endif %}>
+                    <label for="{{ form.choices.id_for_label }}" class="form-label">
+                        Choices <small class="text-muted">(for Choice type only)</small>
+                    </label>
+                    <textarea class="form-control {% if form.choices.errors %}is-invalid{% endif %}"
+                              id="{{ form.choices.id_for_label }}"
+                              name="{{ form.choices.name }}"
+                              rows="3"
+                              placeholder="Enter choices separated by commas (e.g., Small, Medium, Large)">{{ form.choices.value|default:'' }}</textarea>
+                    {% if form.choices.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.choices.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <small class="form-text text-muted">
+                        For choice type attributes, enter options separated by commas
+                    </small>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" 
+                           type="checkbox" 
+                           id="{{ form.is_required.id_for_label }}"
+                           name="{{ form.is_required.name }}"
+                           {% if form.is_required.value %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ form.is_required.id_for_label }}">
+                        This attribute is required
+                    </label>
+                    {% if form.is_required.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.is_required.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    {% if object %}Update Attribute{% else %}Create Attribute{% endif %}
+                </button>
+                <a href="{% url 'product:attribute_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleChoicesField(attributeType) {
+    const choicesGroup = document.getElementById('choices-group');
+    if (attributeType === 'choice') {
+        choicesGroup.style.display = 'block';
+    } else {
+        choicesGroup.style.display = 'none';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const attributeTypeSelect = document.getElementById('{{ form.attribute_type.id_for_label }}');
+    toggleChoicesField(attributeTypeSelect.value);
+});
+</script>
+{% endblock content %}

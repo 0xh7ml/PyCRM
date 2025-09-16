@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Attributes - CRM Solution{% endblock title %}
+
+{% block content_header %}Attributes{% endblock content_header %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">Attributes</li>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Attribute Management</h3>
+            <div class="card-tools">
+                <a href="{% url 'product:attribute_create' %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Add Attribute
+                </a>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                            <th>Choices</th>
+                            <th>Created Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attribute in attributes %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'product:attribute_detail' attribute.pk %}">
+                                    {{ attribute.name }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">
+                                    {{ attribute.get_attribute_type_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if attribute.is_required %}
+                                    <span class="badge bg-warning">Required</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Optional</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if attribute.choices %}
+                                    <small class="text-muted">{{ attribute.choices|truncatechars:30 }}</small>
+                                {% else %}
+                                    <em class="text-muted">N/A</em>
+                                {% endif %}
+                            </td>
+                            <td>{{ attribute.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'product:attribute_detail' attribute.pk %}" 
+                                       class="btn btn-info btn-sm" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'product:attribute_update' attribute.pk %}" 
+                                       class="btn btn-warning btn-sm" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'product:attribute_delete' attribute.pk %}" 
+                                       class="btn btn-danger btn-sm" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <div class="alert alert-info">
+                                    No attributes found. <a href="{% url 'product:attribute_create' %}">Create your first attribute</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if is_paginated %}
+        <div class="card-footer">
+            <nav aria-label="Attribute pagination">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo; First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Product - CRM Solution{% endblock title %}
+
+{% block content_header %}Delete Product{% endblock content_header %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'product:product_list' %}">Products</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'product:product_detail' object.pk %}">{{ object.item_name }}</a></li>
+    <li class="breadcrumb-item active">Delete</li>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card card-danger">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-exclamation-triangle"></i>
+                Confirm Product Deletion
+            </h3>
+        </div>
+        
+        <form method="post">
+            <div class="card-body">
+                {% csrf_token %}
+                
+                <div class="alert alert-warning">
+                    <h5><i class="icon fas fa-exclamation-triangle"></i> Warning!</h5>
+                    You are about to delete the product <strong>"{{ object.item_name }}"</strong> with barcode <strong>{{ object.barcode }}</strong>.
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6>Product Details:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <tr>
+                                    <th width="30%">Product Name:</th>
+                                    <td>{{ object.item_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Barcode:</th>
+                                    <td><code>{{ object.barcode }}</code></td>
+                                </tr>
+                                <tr>
+                                    <th>Category:</th>
+                                    <td>{{ object.category.name }}</td>
+                                </tr>
+                                {% if object.sub_category %}
+                                <tr>
+                                    <th>Sub Category:</th>
+                                    <td>{{ object.sub_category.name }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <th>Purchase Price:</th>
+                                    <td>{{ object.purchase_price }}</td>
+                                </tr>
+                                <tr>
+                                    <th>MRP:</th>
+                                    <td>{{ object.mrp }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Profit Margin:</th>
+                                    <td class="{% if object.profit_margin >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        {{ object.profit_margin }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Status:</th>
+                                    <td>
+                                        {% if object.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Created:</th>
+                                    <td>{{ object.created_at|date:"M d, Y" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        {% if object.description %}
+                        <h6>Description:</h6>
+                        <div class="border p-2 mb-3">
+                            {{ object.description|linebreaks }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="alert alert-danger">
+                            <h6><i class="fas fa-exclamation-circle"></i> Impact of Deletion:</h6>
+                            <ul class="mb-0">
+                                <li>This product will be permanently removed</li>
+                                <li>Barcode <strong>{{ object.barcode }}</strong> will become available for reuse</li>
+                                <li>Any associated inventory records will be affected</li>
+                                <li>Sales history related to this product may be impacted</li>
+                                <li>This action cannot be undone</li>
+                            </ul>
+                        </div>
+
+                        <!-- Profit Summary -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title">Financial Summary</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-12 mb-2">
+                                        <small>Purchase Price</small><br>
+                                        <strong class="text-info">{{ object.purchase_price }}</strong>
+                                    </div>
+                                    <div class="col-12 mb-2">
+                                        <small>MRP</small><br>
+                                        <strong class="text-success">{{ object.mrp }}</strong>
+                                    </div>
+                                    <div class="col-12">
+                                        <small>Profit Margin</small><br>
+                                        <strong class="{% if object.profit_margin >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                            {{ object.profit_margin }}
+                                            ({{ object.profit_percentage|floatformat:1 }}%)
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 bg-light border">
+                    <p class="mb-0">
+                        <strong>This action cannot be undone.</strong> 
+                        Once deleted, all product information including the barcode will be permanently removed from the system.
+                        Are you sure you want to proceed?
+                    </p>
+                </div>
+            </div>
+
+            <div class="card-footer text-right">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i>
+                    Yes, Delete Product
+                </button>
+                <a href="{% url 'product:product_detail' object.pk %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}

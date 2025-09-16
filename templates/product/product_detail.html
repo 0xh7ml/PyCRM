@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.item_name }} - Product Details{% endblock title %}
+
+{% block content_header %}Product Details{% endblock content_header %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'product:product_list' %}">Products</a></li>
+    <li class="breadcrumb-item active">{{ product.item_name }}</li>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{{ product.item_name }}</h3>
+            <div class="card-tools">
+                <a href="{% url 'product:product_update' product.pk %}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'product:product_delete' product.pk %}" class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash"></i> Delete
+                </a>
+                <a href="{% url 'product:product_list' %}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Basic Information -->
+                    <h5 class="text-primary">
+                        <i class="fas fa-info-circle"></i> Basic Information
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th width="30%">Product Name:</th>
+                                <td>{{ product.item_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Barcode:</th>
+                                <td>
+                                    <code class="fs-6">{{ product.barcode }}</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Category:</th>
+                                <td>
+                                    <a href="{% url 'product:category_detail' product.category.pk %}" class="btn btn-outline-primary btn-sm">
+                                        {{ product.category.name }}
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Sub Category:</th>
+                                <td>
+                                    {% if product.sub_category %}
+                                        <a href="{% url 'product:category_detail' product.sub_category.pk %}" class="btn btn-outline-info btn-sm">
+                                            {{ product.sub_category.name }}
+                                        </a>
+                                    {% else %}
+                                        <em class="text-muted">Not specified</em>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Full Category Path:</th>
+                                <td>
+                                    {% if product.sub_category %}
+                                        {{ product.category.name }} > {{ product.sub_category.name }}
+                                    {% else %}
+                                        {{ product.category.name }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Price Information -->
+                    <h5 class="text-success mt-4">
+                        <i class="fas fa-rupee-sign"></i> Price Information
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th width="30%">Purchase Price:</th>
+                                <td class="text-info"><strong>{{ product.purchase_price }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th>MRP:</th>
+                                <td class="text-success"><strong>{{ product.mrp }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th>Profit Margin:</th>
+                                <td class="{% if product.profit_margin >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    <strong>{{ product.profit_margin }}</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Profit Percentage:</th>
+                                <td class="{% if product.profit_percentage >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    <strong>{{ product.profit_percentage|floatformat:2 }}%</strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <h5 class="text-info mt-4">
+                        <i class="fas fa-clipboard"></i> Additional Information
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th width="30%">Status:</th>
+                                <td>
+                                    {% if product.is_active %}
+                                        <span class="badge bg-success fs-6">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger fs-6">Inactive</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Created:</th>
+                                <td>{{ product.created_at|date:"F d, Y g:i A" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Last Updated:</th>
+                                <td>{{ product.updated_at|date:"F d, Y g:i A" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <!-- Profit Analysis Card -->
+                    <div class="card {% if product.profit_margin >= 0 %}bg-light-success{% else %}bg-light-danger{% endif %}">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-chart-line"></i> Profit Analysis
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-12 mb-3">
+                                    <h6>Profit Margin</h6>
+                                    <h3 class="{% if product.profit_margin >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        {{ product.profit_margin }}
+                                    </h3>
+                                </div>
+                                <div class="col-12">
+                                    <h6>Profit Percentage</h6>
+                                    <h3 class="{% if product.profit_percentage >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        {{ product.profit_percentage|floatformat:1 }}%
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-bolt"></i> Quick Actions
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'product:product_update' product.pk %}" class="btn btn-warning">
+                                    <i class="fas fa-edit"></i> Edit Product
+                                </a>
+                                <button class="btn btn-info" onclick="printBarcode()">
+                                    <i class="fas fa-print"></i> Print Barcode
+                                </button>
+                                <a href="{% url 'product:category_detail' product.category.pk %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-layer-group"></i> View Category
+                                </a>
+                                {% if product.sub_category %}
+                                <a href="{% url 'product:category_detail' product.sub_category.pk %}" class="btn btn-outline-info">
+                                    <i class="fas fa-sitemap"></i> View Sub Category
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description Section -->
+            {% if product.description %}
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5 class="text-secondary">
+                        <i class="fas fa-file-alt"></i> Description
+                    </h5>
+                    <div class="card">
+                        <div class="card-body">
+                            {{ product.description|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Barcode Display -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5 class="text-dark">
+                        <i class="fas fa-barcode"></i> Barcode
+                    </h5>
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div id="barcode-container" class="mb-3">
+                                <!-- Barcode would be generated here with a library like JsBarcode -->
+                                <div class="border p-4" style="display: inline-block;">
+                                    <div style="font-family: 'Courier New', monospace; font-size: 24px; letter-spacing: 2px;">
+                                        {{ product.barcode }}
+                                    </div>
+                                    <div class="mt-2" style="font-size: 12px;">
+                                        {{ product.item_name|truncatechars:30 }}
+                                    </div>
+                                </div>
+                            </div>
+                            <small class="text-muted">Barcode: {{ product.barcode }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function printBarcode() {
+    // Create a new window for printing
+    const productBarcode = '{{ product.barcode }}';
+    const productName = '{{ product.item_name|escapejs }}';
+    const printWindow = window.open('', '_blank');
+    
+    const htmlContent = `
+        <html>
+            <head>
+                <title>Barcode - ${productBarcode}</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        text-align: center; 
+                        padding: 20px; 
+                    }
+                    .barcode { 
+                        font-family: 'Courier New', monospace; 
+                        font-size: 36px; 
+                        letter-spacing: 3px; 
+                        border: 2px solid #000; 
+                        padding: 20px; 
+                        display: inline-block; 
+                    }
+                    .product-name { 
+                        margin-top: 10px; 
+                        font-size: 14px; 
+                    }
+                    @media print {
+                        body { margin: 0; padding: 10px; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="barcode">
+                    ${productBarcode}
+                </div>
+                <div class="product-name">${productName}</div>
+                <script>
+                    window.onload = function() {
+                        window.print();
+                        window.onafterprint = function() {
+                            window.close();
+                        }
+                    }
+                <\/script>
+            </body>
+        </html>`;
+    
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+}
+</script>
+{% endblock content %}

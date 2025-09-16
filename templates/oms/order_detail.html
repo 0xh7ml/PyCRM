@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order {{ order.pk }}{% endblock %}
+{% block content_header %}Order Details - {{ order.pk }}{% endblock %}
+
+{% block customJs %}
+<style>
+    .order-summary {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .vendor-info {
+        background: #e9ecef;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .items-table th {
+        background-color: #007bff;
+        color: white;
+    }
+    .discount-badge {
+        font-size: 0.8em;
+    }
+    .action-buttons {
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+    <div class="action-buttons">
+        <a href="{% url 'order-update' order.pk %}" class="btn btn-warning">
+            <i class="fas fa-edit"></i> Edit Order
+        </a>
+        <a href="{% url 'order-invoice' order.pk %}" class="btn btn-success" target="_blank">
+            <i class="fas fa-file-pdf"></i> Generate Invoice
+        </a>
+        <a href="{% url 'order-list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Orders
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Order Items</h3>
+                </div>
+                <div class="card-body">
+                    {% if order.items.all %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered items-table">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Price</th>
+                                    <th>Subtotal</th>
+                                    <th>Discount</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items.all %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>
+                                        <strong>{{ item.product.item_name }}</strong><br>
+                                        <small class="text-muted">{{ item.product.barcode }}</small>
+                                    </td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>{{ item.unit_price }}</td>
+                                    <td>{{ item.get_subtotal }}</td>
+                                    <td>
+                                        {% if item.discount_value > 0 %}
+                                            <span class="badge badge-warning discount-badge">
+                                                {{ item.discount_display }}
+                                            </span><br>
+                                            <small>{{ item.get_discount_amount }}</small>
+                                        {% else %}
+                                            <span class="badge badge-secondary discount-badge">No Discount</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>{{ item.get_total_price }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-info">
+                                    <th colspan="6">Grand Total</th>
+                                    <th>{{ order.total_amount }}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center">
+                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No items in this order.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Order Summary -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Order Summary</h3>
+                </div>
+                <div class="card-body">
+                    <div class="order-summary">
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Order ID:</strong></div>
+                            <div class="col-6">{{ order.pk }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Date:</strong></div>
+                            <div class="col-6">{{ order.order_date|date:"d/m/Y" }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Time:</strong></div>
+                            <div class="col-6">{{ order.order_date|date:"H:i:s" }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Items:</strong></div>
+                            <div class="col-6">{{ order.items.count }}</div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-6"><strong>Total Amount:</strong></div>
+                            <div class="col-6"><strong class="text-success">{{ order.total_amount }}</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vendor Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Vendor Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="vendor-info">
+                        <h5>{{ order.vendor.name }}</h5>
+                        <p class="mb-1">
+                            <i class="fas fa-envelope"></i> {{ order.vendor.contact_email }}
+                        </p>
+                        {% if order.vendor.phone_number %}
+                        <p class="mb-1">
+                            <i class="fas fa-phone"></i> {{ order.vendor.phone_number }}
+                        </p>
+                        {% endif %}
+                        {% if order.vendor.address %}
+                        <p class="mb-0">
+                            <i class="fas fa-map-marker-alt"></i> {{ order.vendor.address }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            {% if order.notes %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Notes</h3>
+                </div>
+                <div class="card-body">
+                    <p>{{ order.notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Orders{% endblock %}
+{% block content_header %}Orders Management{% endblock %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">All Orders</h3>
+            <div class="card-tools">
+                <a href="{% url 'order-create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create New Order
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if orders %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Vendor</th>
+                            <th>Order Date</th>
+                            <th>Items Count</th>
+                            <th>Total Amount</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>
+                                <strong>{{ order.pk }}</strong>
+                            </td>
+                            <td>
+                                <div>
+                                    <strong>{{ order.vendor.name }}</strong><br>
+                                    <small class="text-muted">{{ order.vendor.contact_email }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                {{ order.created_at|date:"d/m/Y" }}
+                            </td>
+                            <td>
+                                <span class="badge badge-info">{{ order.items.count }} items</span>
+                            </td>
+                            <td>
+                                <strong>{{ order.total_amount }}</strong>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <a href="{% url 'order-detail' order.pk %}" class="btn btn-sm btn-info" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'order-update' order.pk %}" class="btn btn-sm btn-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'order-invoice' order.pk %}" class="btn btn-sm btn-success" title="Invoice" target="_blank">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                    <a href="{% url 'order-delete' order.pk %}" class="btn btn-sm btn-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="d-flex justify-content-center mt-3">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center">
+                <div class="empty-state">
+                    <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No orders found</h4>
+                    <p class="text-muted">Create your first order to get started.</p>
+                    <a href="{% url 'order-create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create Your First Order
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

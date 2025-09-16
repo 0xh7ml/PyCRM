@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ attribute.name }} - Attribute Details{% endblock title %}
+
+{% block content_header %}Attribute Details{% endblock content_header %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'product:attribute_list' %}">Attributes</a></li>
+    <li class="breadcrumb-item active">{{ attribute.name }}</li>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{{ attribute.name }}</h3>
+            <div class="card-tools">
+                <a href="{% url 'product:attribute_update' attribute.pk %}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'product:attribute_delete' attribute.pk %}" class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash"></i> Delete
+                </a>
+                <a href="{% url 'product:attribute_list' %}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th width="30%">Attribute Name:</th>
+                            <td>{{ attribute.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Type:</th>
+                            <td>
+                                <span class="badge bg-info">
+                                    {{ attribute.get_attribute_type_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Required:</th>
+                            <td>
+                                {% if attribute.is_required %}
+                                    <span class="badge bg-warning">Yes</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">No</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% if attribute.choices %}
+                        <tr>
+                            <th>Available Choices:</th>
+                            <td>
+                                <div class="d-flex flex-wrap">
+                                    {% for choice in attribute.get_choices_list %}
+                                        <span class="badge bg-success me-1 mb-1">{{ choice }}</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th>Created:</th>
+                            <td>{{ attribute.created_at|date:"F d, Y g:i A" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Last Updated:</th>
+                            <td>{{ attribute.updated_at|date:"F d, Y g:i A" }}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="col-md-4">
+                    <h5>Description:</h5>
+                    <div class="border p-3" style="min-height: 150px;">
+                        {% if attribute.description %}
+                            {{ attribute.description|linebreaks }}
+                        {% else %}
+                            <em class="text-muted">No description provided</em>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if attribute.attribute_type == 'choice' and attribute.choices %}
+                <div class="mt-4">
+                    <h5>Choice Options:</h5>
+                    <div class="alert alert-info">
+                        <strong>Raw choices string:</strong><br>
+                        <code>{{ attribute.choices }}</code>
+                    </div>
+                    <div>
+                        <strong>Parsed choices:</strong><br>
+                        <ul class="list-unstyled">
+                            {% for choice in attribute.get_choices_list %}
+                                <li><i class="fas fa-check-circle text-success"></i> {{ choice }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if attribute.attribute_type == 'boolean' %}
+                <div class="mt-4">
+                    <div class="alert alert-info">
+                        <strong>Boolean Attribute:</strong><br>
+                        This attribute accepts only True/False values.
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if attribute.attribute_type == 'number' %}
+                <div class="mt-4">
+                    <div class="alert alert-info">
+                        <strong>Number Attribute:</strong><br>
+                        This attribute accepts numeric values only.
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

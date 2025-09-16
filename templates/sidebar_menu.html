@@ -11,6 +11,7 @@
         <i class="nav-icon fa fa-users"></i>
         <p>
             CRM
+            <i class="right fas fa-angle-left"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
@@ -18,6 +19,58 @@
             <a href="{% url "vendor-list" %}" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Vendors</p>
+            </a>
+        </li>
+    </ul>
+</li>
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-box"></i>
+        <p>
+            Product Management
+            <i class="right fas fa-angle-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="{% url "product:product_list" %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Products</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url "product:category_list" %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Categories</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url "product:attribute_list" %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Attributes</p>
+            </a>
+        </li>
+    </ul>
+</li>
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-shopping-cart"></i>
+        <p>
+            Order Management
+            <i class="right fas fa-angle-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="{% url "order-list" %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Orders</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url "order-create" %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Create Order</p>
             </a>
         </li>
     </ul>

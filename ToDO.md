@@ -1,12 +1,12 @@
-- [ ] Category/Products
-    - [ ] Product Categories
-    - [ ] Product Attributes (type, size, ply)
-    - [ ] Product Combinations
-    - [ ] Automatic Combination generator
-    - [ ] Choice of number of products per page (pagination)
+- [x] Category/Products
+    - [x] Product Categories
+    - [x] Product Attributes (type, size, ply)
+    - [x] Product Combinations
+    - [x] Automatic Combination generator
+    - [x] Choice of number of products per page (pagination)
 
-- [ ] Customer Management
-    - [ ] Vendor CRUD (
+- [x] Customer Management
+    - [x] Vendor CRUD (
         Email,
         Contact No,
         Address,
@@ -23,7 +23,7 @@
     - [ ] Salary Sheet Generate
 
 - [ ] Accounts
-    - [ ] Bills
+    - [ ] Bills Entry
     - [ ] Voucher Entry
     - [ ] Cost Entry
     - [ ] Balance Sheet

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Attribute - CRM Solution{% endblock title %}
+
+{% block content_header %}Delete Attribute{% endblock content_header %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'product:attribute_list' %}">Attributes</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'product:attribute_detail' object.pk %}">{{ object.name }}</a></li>
+    <li class="breadcrumb-item active">Delete</li>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card card-danger">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-exclamation-triangle"></i>
+                Confirm Deletion
+            </h3>
+        </div>
+        
+        <form method="post">
+            <div class="card-body">
+                {% csrf_token %}
+                
+                <div class="alert alert-warning">
+                    <h5><i class="icon fas fa-exclamation-triangle"></i> Warning!</h5>
+                    You are about to delete the attribute <strong>"{{ object.name }}"</strong>.
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6>Attribute Details:</h6>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th width="30%">Name:</th>
+                                <td>{{ object.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Type:</th>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ object.get_attribute_type_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Required:</th>
+                                <td>
+                                    {% if object.is_required %}
+                                        <span class="badge bg-warning">Yes</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">No</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% if object.choices %}
+                            <tr>
+                                <th>Choices:</th>
+                                <td>{{ object.choices }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <th>Created:</th>
+                                <td>{{ object.created_at|date:"M d, Y" }}</td>
+                            </tr>
+                        </table>
+
+                        {% if object.description %}
+                        <h6>Description:</h6>
+                        <div class="border p-2">
+                            {{ object.description|linebreaks }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="alert alert-danger">
+                            <h6>Impact of Deletion:</h6>
+                            <ul class="mb-0">
+                                <li>This attribute will be permanently removed</li>
+                                <li>Any products using this attribute will lose this information</li>
+                                <li>This action cannot be undone</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 bg-light border">
+                    <p class="mb-0">
+                        <strong>This action cannot be undone.</strong> 
+                        Are you sure you want to proceed?
+                    </p>
+                </div>
+            </div>
+
+            <div class="card-footer text-right">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i>
+                    Yes, Delete Attribute
+                </button>
+                <a href="{% url 'product:attribute_detail' object.pk %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}
